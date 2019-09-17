@@ -11,7 +11,8 @@ link_directories(${LLVM_LIBRARY_DIRS})
 
 add_executable(pl
     src/Main.cpp
-    src/InputFile.cpp)
+    src/InputFile.cpp
+    src/Memory.cpp)
 
 target_include_directories(pl
     PUBLIC ${PROJECT_SOURCE_DIR}/include)

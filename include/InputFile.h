@@ -11,8 +11,6 @@
 
 namespace plastic
 {
-    namespace elf
-    {
 
     llvm::Optional<MemoryBufferRef> readFile(StringRef path);
 
@@ -32,7 +30,8 @@ namespace plastic
     class InputFile
     {
     public:
-        // The type of InputFile.
+        // The type of InputFile, used  to destinguish between base class
+        // and derived classes.
         enum class Kind : uint8_t
         {
             NoneKind,
@@ -85,6 +84,6 @@ namespace plastic
         // Storage for symbol type anonymous enum defined in llvm ELF header.
         uint8_t Type;
     };
-    } // nsamespace elf
+
 } // namespace Plastic
 
