@@ -10,12 +10,12 @@ include_directories(${LLVM_INCLUDE_DIRS})
 link_directories(${LLVM_LIBRARY_DIRS})
 
 add_executable(pl
-    src/Main.cpp
-    src/InputFile.cpp
-    src/Memory.cpp)
+    ELF/Main.cpp
+    ELF/InputFile.cpp
+    ELF/Memory.cpp)
 
-target_include_directories(pl
-    PUBLIC ${PROJECT_SOURCE_DIR}/include)
+#target_include_directories(pl
+    #PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 target_compile_features(pl
     PUBLIC cxx_std_17)
