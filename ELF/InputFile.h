@@ -15,10 +15,12 @@
 
 namespace plastic
 {
+namespace elf
+{
 
     llvm::Optional<MemoryBufferRef> readFile(StringRef Path);
 
-    enum class ELFKind : uint8_t
+    enum ELFKind : uint8_t
     {
         ELFNoneKind,
         ELF32LEKind,
@@ -35,7 +37,7 @@ namespace plastic
     public:
         // The type of InputFile, used  to destinguish between base class
         // and derived classes.
-        enum class Kind : uint8_t
+        enum Kind
         {
             NoneKind,
             ObjectKind,
@@ -57,9 +59,7 @@ namespace plastic
 
     protected:
         InputFile(Kind k, llvm::MemoryBufferRef M);
-
         llvm::StringRef getName() const { return MBR.getBufferIdentifier(); };
-
         Kind Kind() const { return this->FileKind; };
     };
 
@@ -73,6 +73,8 @@ namespace plastic
     protected:
         std::vector<Elf_Sym> SymTables;
 
+    protected:
+        ELFFileBase(enum Kind k, MemoryBufferRef M);
     private:
         // Maps buffer into the object::ELFfile class
         llvm::object::ELFFile<ELFT> getObj() const
@@ -84,12 +86,18 @@ namespace plastic
     template<typename ELFT>
     class ObjFile : public ELFFileBase<ELFT>
     {
+    public:
+        using Base = ELFFileBase<ELFT>;
     private:
         // Debug info for retrieving line information
-        std::unique_ptr<llvm::DWARFContext> Dwarf;
+        //std::unique_ptr<llvm::DWARFContext> Dwarf;
+
+    public:
+        ObjFile(MemoryBufferRef M);
     };
 
     InputFile *createObjectFile(MemoryBufferRef MBR);
 
+} // namespace plastic::elf
 } // namespace Plastic
 
