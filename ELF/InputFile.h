@@ -1,18 +1,22 @@
 #pragma once
 
+#include <llvm/DebugInfo/DWARF/DWARFFormValue.h>
+#include <memory>
 #include <string>
 #include <cstdint>
+#include <vector>
 #include "LLVM.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/Object/ELF.h"
 #include "llvm/Support/MemoryBuffer.h"
 #include "llvm/ADT/StringRef.h"
+#include "llvm/DebugInfo/DWARF/DWARFDebugLine.h"
 
 
 namespace plastic
 {
 
-    llvm::Optional<MemoryBufferRef> readFile(StringRef path);
+    llvm::Optional<MemoryBufferRef> readFile(StringRef Path);
 
     enum class ELFKind : uint8_t
     {
@@ -26,7 +30,6 @@ namespace plastic
     class Symbol;
     class Section;
 
-    // The base of all input file
     class InputFile
     {
     public:
@@ -41,20 +44,23 @@ namespace plastic
         };
 
     private:
-        const Kind NoneKind;
-
+        const Kind FileKind;
+    protected:
+        std::vector<Symbol *> Symbols;
     public:
-        // 
-        MemoryBufferRef MB;
+        // Storing the reference to the MB but not owning it
+        MemoryBufferRef MBR;
         // Storage for architecture-specific type. i.e. ELF32LE
         ELFKind Ekind = ELFKind::ELFNoneKind;
         // Storage for Machine type, e_type has a size of 2 bytes.
         uint16_t EMKind = llvm::ELF::EM_NONE;
 
-        //llvm::StringRef getName() const { return MB.getBufferIdentifier(); };
-
     protected:
         InputFile(Kind k, llvm::MemoryBufferRef M);
+
+        llvm::StringRef getName() const { return MBR.getBufferIdentifier(); };
+
+        Kind Kind() const { return this->FileKind; };
     };
 
     // ELFT are types defined in llvm/include/llvm/Object/ELFTypes.h. i.e. ELF32LE
@@ -64,26 +70,26 @@ namespace plastic
     public:
         using Elf_Shdr = typename ELFT::Shdr;
         using Elf_Sym = typename ELFT::Sym;
-
     protected:
-        std::vector<Elf_Sym> SymTable;
+        std::vector<Elf_Sym> SymTables;
 
-    public:
+    private:
+        // Maps buffer into the object::ELFfile class
         llvm::object::ELFFile<ELFT> getObj() const
         {
-            return llvm::object::ELFFile<ELFT>::create(MB.getBuffer());
+            return llvm::object::ELFFile<ELFT>::create(MBR.getBuffer());
         }
     };
 
-    class Symbol
+    template<typename ELFT>
+    class ObjFile : public ELFFileBase<ELFT>
     {
-    public:
-        // The file where the symbol is defined.
-        InputFile *File;
-
-        // Storage for symbol type anonymous enum defined in llvm ELF header.
-        uint8_t Type;
+    private:
+        // Debug info for retrieving line information
+        std::unique_ptr<llvm::DWARFContext> Dwarf;
     };
+
+    InputFile *createObjectFile(MemoryBufferRef MBR);
 
 } // namespace Plastic
 
