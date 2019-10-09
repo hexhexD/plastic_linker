@@ -58,7 +58,7 @@ namespace elf
         uint16_t EMKind = llvm::ELF::EM_NONE;
 
     protected:
-        InputFile(Kind k, llvm::MemoryBufferRef M);
+        InputFile(Kind k, MemoryBufferRef M);
         llvm::StringRef getName() const { return MBR.getBufferIdentifier(); };
         Kind Kind() const { return this->FileKind; };
     };
