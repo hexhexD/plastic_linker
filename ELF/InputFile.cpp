@@ -41,7 +41,7 @@ ELFFileBase<ELFT>::ELFFileBase(enum Kind k, MemoryBufferRef M)
 }
 
 template<typename ELFT>
-ObjFile<ELFT>::ObjFile(MemoryBufferRef MBR) : ELFFileBase<ELFT>(Base::ObjectKind, MBR) {}
+ObjFile<ELFT>::ObjFile(MemoryBufferRef MBR) : ELFFileBase<ELFT>(ObjFile::ObjectKind, MBR) {}
 
 // TODO: Determine other ELFKind beside ELF64LEKind
 // Visible only to this file since it's only used in this file.

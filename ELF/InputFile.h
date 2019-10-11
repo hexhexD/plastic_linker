@@ -34,7 +34,7 @@ namespace elf
 
     class InputFile
     {
-    public:
+    protected:
         // The type of InputFile, used  to destinguish between base class
         // and derived classes.
         enum Kind

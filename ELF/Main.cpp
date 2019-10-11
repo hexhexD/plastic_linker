@@ -2,6 +2,7 @@
 #include "llvm/Object/ELF.h"
 #include "InputFile.h"
 #include "Memory.h"
+#include "Symbol.h"
 #include "Driver.h"
 
 using namespace plastic;
