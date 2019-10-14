@@ -20,13 +20,13 @@ namespace elf
 
     llvm::Optional<MemoryBufferRef> readFile(StringRef Path);
 
-    enum ELFKind : uint8_t
+    enum class ELFKind : uint8_t 
     {
-        ELFNoneKind,
-        ELF32LEKind,
-        ELF32BEKind,
-        ELF64LEKind,
-        ELF64BEKind,
+      ELFNone,
+      ELF32LE,
+      ELF32BE,
+      ELF64LE,
+      ELF64BE,
     };
 
     class Symbol;
@@ -37,30 +37,30 @@ namespace elf
     protected:
         // The type of InputFile, used  to destinguish between base class
         // and derived classes.
-        enum Kind
+        enum class FileKind : uint8_t
         {
-            NoneKind,
-            ObjectKind,
-            SharedObjectKind,
-            ArchiveKind,
+            None,
+            Object,
+            SharedObject,
+            Archive,
         };
 
     private:
-        const Kind FileKind;
+        const FileKind FKind;
     protected:
         std::vector<Symbol *> Symbols;
     public:
         // Storing the reference to the MB but not owning it
         MemoryBufferRef MBR;
         // Storage for architecture-specific type. i.e. ELF32LE
-        ELFKind Ekind = ELFKind::ELFNoneKind;
+        ELFKind Ekind = ELFKind::ELFNone;
         // Storage for Machine type, e_type has a size of 2 bytes.
         uint16_t EMKind = llvm::ELF::EM_NONE;
 
     protected:
-        InputFile(Kind k, MemoryBufferRef M);
+        InputFile(FileKind k, MemoryBufferRef M);
         llvm::StringRef getName() const { return MBR.getBufferIdentifier(); };
-        Kind Kind() const { return this->FileKind; };
+        FileKind Kind() const { return this->FKind; };
     };
 
     // ELFT are types defined in llvm/include/llvm/Object/ELFTypes.h. i.e. ELF32LE
@@ -74,7 +74,7 @@ namespace elf
         std::vector<Elf_Sym> SymTables;
 
     protected:
-        ELFFileBase(enum Kind k, MemoryBufferRef M);
+        ELFFileBase(FileKind k, MemoryBufferRef M);
     private:
         // Maps buffer into the object::ELFfile class
         llvm::object::ELFFile<ELFT> getObj() const

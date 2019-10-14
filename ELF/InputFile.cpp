@@ -4,6 +4,9 @@
 #include <llvm/Support/Endian.h>
 #include <llvm/Support/ErrorHandling.h>
 
+using namespace llvm;
+using namespace llvm::object;
+
 using namespace plastic;
 using namespace plastic::elf;
 
@@ -26,22 +29,23 @@ llvm::Optional<MemoryBufferRef> elf::readFile(StringRef Path)
     return MBRef;
 };
 
-InputFile::InputFile(enum Kind k, MemoryBufferRef M) : FileKind(k), MBR(M) {}
+InputFile::InputFile(FileKind k, MemoryBufferRef M) : FKind(k), MBR(M) {}
 
 // TODO: Determine other ELFKind beside ELF64LEKind
 template<typename ELFT>
-ELFFileBase<ELFT>::ELFFileBase(enum Kind k, MemoryBufferRef M)
+ELFFileBase<ELFT>::ELFFileBase(FileKind k, MemoryBufferRef M)
     : InputFile(k, M)
 {
     if (ELFT::TargetEndianness == llvm::support::little)
-        this->Ekind = ELFT::Is64Bits ? ELF64LEKind : ELF32LEKind;
+        this->Ekind = ELFT::Is64Bits ? ELFKind::ELF64LE : ELFKind::ELF32LE;
     else
-        this->Ekind = ELFT::Is64Bits ? ELF64BEKind : ELF32BEKind;
+        this->Ekind = ELFT::Is64Bits ? ELFKind::ELF64BE : ELFKind::ELF32BE;
 
 }
 
 template<typename ELFT>
-ObjFile<ELFT>::ObjFile(MemoryBufferRef MBR) : ELFFileBase<ELFT>(ObjFile::ObjectKind, MBR) {}
+ObjFile<ELFT>::ObjFile(MemoryBufferRef MBR)
+    : ELFFileBase<ELFT>(InputFile::FileKind::Object, MBR) {}
 
 // TODO: Determine other ELFKind beside ELF64LEKind
 // Visible only to this file since it's only used in this file.
@@ -51,16 +55,16 @@ static ELFKind getELFKind(MemoryBufferRef MBR)
     //std::tie(Sz, Endian) = llvm::object::getElfArchType(MBR.getBuffer());
     auto [Sz, Endian]  = llvm::object::getElfArchType(MBR.getBuffer());
 
-    if (Sz == llvm::ELF::ELFCLASS64)
-        return (Endian == llvm::ELF::ELFDATA2LSB) ? ELF64LEKind : ELF64BEKind;
-    return (Endian == llvm::ELF::ELFDATA2LSB) ? ELF32LEKind : ELF32BEKind;
+    if (Sz == ELF::ELFCLASS64)
+        return (Endian == ELF::ELFDATA2LSB) ? ELFKind::ELF64LE : ELFKind::ELF64BE;
+    return (Endian == ELF::ELFDATA2LSB) ? ELFKind::ELF32LE : ELFKind::ELF32BE;
 }
 
 InputFile *elf::createObjectFile(MemoryBufferRef MBR)
 {
     switch (getELFKind(MBR))
     {
-    case ELF64LEKind:
+    case ELFKind::ELF64LE:
         return make<ObjFile<llvm::object::ELF64LE>>(MBR);
     default:
         // llvm macro that acts like a sentinel
