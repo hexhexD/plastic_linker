@@ -18,16 +18,15 @@ namespace elf
 class Symbol
 {
 protected:
-    enum Kind
-    {
-        PlaceolderKind,
-        DefinedKind,
-        UndefinedKind,
-        LazyObjectKind,
-    };
+  enum class SymKind {
+    Placeolder,
+    Defined,
+    Undefined,
+    LazyObject,
+  };
 
 private:
-    Kind SymbolKind;
+    SymKind ClassKind;
     InputFile *File;
 protected:
     // Name in string table
@@ -36,9 +35,9 @@ protected:
     uint8_t StOther;    // st_other
 
 protected:
-    Symbol(Kind K, InputFile *File, StringRef Name, 
+    Symbol(SymKind K, InputFile *File, StringRef Name, 
            uint8_t Type, uint8_t StOther)
-        : SymbolKind(K), File(File), Type(Type), StOther(StOther) {}
+        : ClassKind(K), File(File), Type(Type), StOther(StOther) {}
 };
 
 class Defined : public Symbol
@@ -52,7 +51,7 @@ public:
     Defined(InputFile *File, StringRef Name, 
            uint8_t Type, uint8_t StOther, uint64_t Value, uint64_t Size,
            SectionBase *Section)
-        : Symbol(DefinedKind, File, Name, Type, StOther), Value(Value), Size(Size), 
+        : Symbol(SymKind::Defined, File, Name, Type, StOther), Value(Value), Size(Size), 
           Section(Section) {}
 };
 
@@ -60,7 +59,7 @@ class Undefined : public Symbol
 {
 public:
     Undefined(InputFile *File, StringRef Name,uint8_t Type, uint8_t StOther)
-        : Symbol(UndefinedKind, File, Name, Type, StOther) {}
+        : Symbol(SymKind::Undefined, File, Name, Type, StOther) {}
 };
 
 } // namespace elf

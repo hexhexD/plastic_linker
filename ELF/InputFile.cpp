@@ -29,11 +29,11 @@ llvm::Optional<MemoryBufferRef> elf::readFile(StringRef Path)
     return MBRef;
 };
 
-InputFile::InputFile(FileKind k, MemoryBufferRef M) : FKind(k), MBR(M) {}
+InputFile::InputFile(FKind k, MemoryBufferRef M) : ClassKind(k), MBR(M) {}
 
 // TODO: Determine other ELFKind beside ELF64LEKind
 template<typename ELFT>
-ELFFileBase<ELFT>::ELFFileBase(FileKind k, MemoryBufferRef M)
+ELFFileBase<ELFT>::ELFFileBase(FKind k, MemoryBufferRef M)
     : InputFile(k, M)
 {
     if (ELFT::TargetEndianness == llvm::support::little)
@@ -45,7 +45,7 @@ ELFFileBase<ELFT>::ELFFileBase(FileKind k, MemoryBufferRef M)
 
 template<typename ELFT>
 ObjFile<ELFT>::ObjFile(MemoryBufferRef MBR)
-    : ELFFileBase<ELFT>(InputFile::FileKind::Object, MBR) {}
+    : ELFFileBase<ELFT>(InputFile::FKind::Object, MBR) {}
 
 // TODO: Determine other ELFKind beside ELF64LEKind
 // Visible only to this file since it's only used in this file.

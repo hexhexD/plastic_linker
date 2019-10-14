@@ -37,7 +37,7 @@ namespace elf
     protected:
         // The type of InputFile, used  to destinguish between base class
         // and derived classes.
-        enum class FileKind : uint8_t
+        enum class FKind : uint8_t
         {
             None,
             Object,
@@ -46,7 +46,7 @@ namespace elf
         };
 
     private:
-        const FileKind FKind;
+        const FKind ClassKind;
     protected:
         std::vector<Symbol *> Symbols;
     public:
@@ -58,9 +58,9 @@ namespace elf
         uint16_t EMKind = llvm::ELF::EM_NONE;
 
     protected:
-        InputFile(FileKind k, MemoryBufferRef M);
+        InputFile(FKind k, MemoryBufferRef M);
         llvm::StringRef getName() const { return MBR.getBufferIdentifier(); };
-        FileKind Kind() const { return this->FKind; };
+        FKind Kind() const { return this->ClassKind; };
     };
 
     // ELFT are types defined in llvm/include/llvm/Object/ELFTypes.h. i.e. ELF32LE
@@ -74,7 +74,7 @@ namespace elf
         std::vector<Elf_Sym> SymTables;
 
     protected:
-        ELFFileBase(FileKind k, MemoryBufferRef M);
+        ELFFileBase(FKind k, MemoryBufferRef M);
     private:
         // Maps buffer into the object::ELFfile class
         llvm::object::ELFFile<ELFT> getObj() const
