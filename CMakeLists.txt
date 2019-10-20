@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 
 project(plastic_linker)
 # -Wno-dev flag to supress llvm dev errors
-add_compile_options(-g -Wall)
+add_compile_options(-g -Wall -std=c++17)
 
 find_package(LLVM REQUIRED CONFIG)
 add_definitions(${LLVM_DEFINITIONS})
@@ -12,7 +12,8 @@ link_directories(${LLVM_LIBRARY_DIRS})
 add_executable(pl
     ELF/InputFile.cpp
     ELF/Main.cpp
-    ELF/Memory.cpp)
+    ELF/Memory.cpp
+    ELF/Driver.cpp)
 
 #target_include_directories(pl
     #PUBLIC ${PROJECT_SOURCE_DIR}/include)
